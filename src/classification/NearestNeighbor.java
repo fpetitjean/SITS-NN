@@ -6,10 +6,10 @@ import data.Dataset;
 import data.TimeSeries;
 import measures.SimilarityMeasure;
 
-public class NearestNeighbor {
+public class NearestNeighbor implements TimeSeriesClassifier {
 	
-	private SimilarityMeasure measure;
-	private Dataset train;
+	protected SimilarityMeasure measure;
+	protected Dataset train;
 
 	public NearestNeighbor(SimilarityMeasure measure){
 		this.measure = measure;
@@ -20,27 +20,43 @@ public class NearestNeighbor {
 	}
 	
 	public int classify(TimeSeries query){
-		
-		double minDist = Double.MAX_VALUE;
-		int closestClassIndex = -1;
-		
-		List<TimeSeries> dataset = train.getData();
-		List<Integer> classLabels = train.getLabels();
-		
-		for (int i = 0; i < dataset.size(); i++) {
-			TimeSeries s =dataset.get(i);
-			double d = measure.compute(query, s);
+		if(measure.hasLowerBound()){
+			double minDist = Double.MAX_VALUE;
+			int closestClassIndex = -1;
 			
-			if(d< minDist){
-				minDist=d;
-				closestClassIndex = classLabels.get(i);
+			List<TimeSeries> dataset = train.getData();
+			List<Integer> classLabels = train.getLabels();
+			
+			for (int i = 0; i < dataset.size(); i++) {
+				TimeSeries s =dataset.get(i);
+				double lb = measure.computeLowerBound(query, s);
+				if(lb < minDist){
+					double d = measure.compute(query, s);
+					
+					if(d < minDist){
+						minDist=d;
+						closestClassIndex = classLabels.get(i);
+					}
+				}
 			}
+			return closestClassIndex;
+		}else{
+			double minDist = Double.MAX_VALUE;
+			int closestClassIndex = -1;
+			
+			List<TimeSeries> dataset = train.getData();
+			List<Integer> classLabels = train.getLabels();
+			
+			for (int i = 0; i < dataset.size(); i++) {
+				TimeSeries s =dataset.get(i);
+				double d = measure.compute(query, s);
+				
+				if(d< minDist){
+					minDist=d;
+					closestClassIndex = classLabels.get(i);
+				}
+			}
+			return closestClassIndex;
 		}
-		return closestClassIndex;
-		
 	}
-	
-	
-	
-	
 }

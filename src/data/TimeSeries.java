@@ -1,5 +1,7 @@
 package data;
 
+import java.util.Arrays;
+
 public class TimeSeries{
 	
 	double[]series;
@@ -17,4 +19,15 @@ public class TimeSeries{
 		return series;
 	}
 
+	@Override
+	public String toString(){
+		return Arrays.toString(series);
+	}
+	
+	public int getID_polygon(){
+		return id_polygon;
+	}
+	public int getID_pixel(){
+		return id_pixel;
+	}
 }

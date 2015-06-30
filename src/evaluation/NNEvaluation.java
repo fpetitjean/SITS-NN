@@ -10,60 +10,70 @@ import java.util.BitSet;
 import java.util.Random;
 
 import measures.Euclidean;
+import measures.SimilarityMeasure;
 import classification.NearestNeighbor;
+import classification.TimeSeriesClassifier;
 import data.Dataset;
 import data.TimeSeries;
 
 public class NNEvaluation {
 
-	File datasetFile;
+	protected File datasetFile;
 
 	/**
 	 * Percentage of the dataset to train on
 	 */
-	double percentageForTrain = .5;
+	protected double percentageForTrain = .5;
 
 	/**
 	 * Percentage of pixels to use in each polygon (both train and test)
 	 */
-	double samplingRate = 1.0;
+	protected double samplingRate = 1.0;
 
-	private BufferedReader reader;
+	protected BufferedReader reader;
 
-	private FileReader fReader;
+	protected FileReader fReader;
 
-	private int[] polygonNumbers;
+	protected int[] polygonNumbers;
 
-	private int[] trainPolygonNumbers;
+	protected int[] trainPolygonNumbers;
 
-	private int[] testPolygonNumbers;
+	protected int[] testPolygonNumbers;
 	
 	Dataset train,test;
 
-	private ArrayList<TimeSeries> trainTimeSeries;
+	protected ArrayList<TimeSeries> trainTimeSeries;
 	
-	private ArrayList<Integer> trainClassIndexes;
+	protected ArrayList<Integer> trainClassIndexes;
 
-	private int nErrors;
+	protected int nErrors;
 
-	private int nSeriesTested;
+	protected int nSeriesTested;
+
+	protected SimilarityMeasure measure;
+
+	private TimeSeriesClassifier classifier;
+
+	private long seed;
 	
 
-	private static final int N_BYTES = 1024000;
-	private static final int ID_PIXEL_ATTRIBUTE = 0;
-	private static final int ID_POLYGON_ATTRIBUTE = 1;
-	private static final int CLASS_ATTRIBUTE = 4;
-	private static final int INDEX_START_NDVI = 111;
-	private static final int LENGTH_TIME_SERIES = 15;
+	protected static final int N_BYTES = 1024000;
+	protected static final int ID_PIXEL_ATTRIBUTE = 0;
+	protected static final int ID_POLYGON_ATTRIBUTE = 1;
+	protected static final int CLASS_ATTRIBUTE = 4;
+	protected static final int INDEX_START_NDVI = 111;
+	protected static final int LENGTH_TIME_SERIES = 15;
 
-	public NNEvaluation(File datasetFile) {
+	public NNEvaluation(TimeSeriesClassifier classifier, File datasetFile) {
+		this.classifier = classifier;
 		this.datasetFile = datasetFile;
+		this.seed = 3071980L;
 	}
 
 	public void evaluate() throws NumberFormatException, IOException {
-		createFolds(3071980);
+		createFolds(seed);
 		
-		Random r = new Random();
+		Random r = new Random(seed);
 		//build train dataset (1pass over the data)
 		trainTimeSeries = new ArrayList<TimeSeries>();
 		trainClassIndexes = new ArrayList<Integer>();
@@ -98,8 +108,7 @@ public class NNEvaluation {
 		
 		Dataset trainDataset = new Dataset(trainTimeSeries, trainClassIndexes);
 //		System.out.println("train dataset created with "+trainTimeSeries.size()+" time series");
-		NearestNeighbor nnClassifier = new NearestNeighbor(new Euclidean());
-		nnClassifier.train(trainDataset);
+		classifier.train(trainDataset);
 		
 		//second pass for test
 		nSeriesTested = 0;
@@ -119,7 +128,7 @@ public class NNEvaluation {
 						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i])/1000.0;
 					}
 					TimeSeries ts = new TimeSeries(timeSeries, pixelID, polygonID);
-					int predictedClassIndex = nnClassifier.classify(ts);
+					int predictedClassIndex = classifier.classify(ts);
 					
 					int classIndex = Integer.valueOf(splitted[CLASS_ATTRIBUTE]);
 //					System.out.println("predicted ="+predictedClassIndex+"\tref="+classIndex);
@@ -133,6 +142,62 @@ public class NNEvaluation {
 		
 		
 		
+	}
+	
+	public void evaluateTrainOnTrain() throws NumberFormatException, IOException {
+		createFolds(seed);
+		
+		Random r = new Random(seed);
+		//build train dataset (1pass over the data)
+		trainTimeSeries = new ArrayList<TimeSeries>();
+		trainClassIndexes = new ArrayList<Integer>();
+		fReader = new FileReader(this.datasetFile);
+		reader = new BufferedReader(fReader, N_BYTES);
+		String line;
+		BitSet allClassesNumbers= new BitSet();
+		while ((line = reader.readLine()) != null) {
+			String[] splitted = line.split(",");
+			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
+			int indexInTrain = Arrays.binarySearch(trainPolygonNumbers, polygonID);
+			int pixelID = Integer.valueOf(splitted[ID_PIXEL_ATTRIBUTE]);
+			
+			if(indexInTrain>=0){
+				if(r.nextDouble()<samplingRate){
+					//this is for train
+					double[] timeSeries = new double[LENGTH_TIME_SERIES];
+					for (int i = 0; i < timeSeries.length; i++) {
+						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i])/1000.0;
+					}
+					TimeSeries ts = new TimeSeries(timeSeries, pixelID, polygonID);
+					trainTimeSeries.add(ts);
+					
+					int classIndex = Integer.valueOf(splitted[CLASS_ATTRIBUTE]);
+					trainClassIndexes.add(classIndex);
+					allClassesNumbers.set(classIndex);
+					
+				}
+			}
+		}
+		System.out.println(allClassesNumbers.cardinality()+" classes in the dataset");
+		
+		Dataset trainDataset = new Dataset(trainTimeSeries, trainClassIndexes);
+//		System.out.println("train dataset created with "+trainTimeSeries.size()+" time series");
+		classifier.train(trainDataset);
+		
+		//second pass for test
+		int nSeriesTested = 0;
+		int nErrors = 0;
+		for (int i = 0; i < trainTimeSeries.size(); i++) {
+			TimeSeries ts = trainTimeSeries.get(i);
+			int predictedClassIndex = classifier.classify(ts);
+			int classIndex = trainClassIndexes.get(i);
+//					System.out.println("predicted ="+predictedClassIndex+"\tref="+classIndex);
+			if(classIndex!=predictedClassIndex){
+				nErrors++;
+			}
+			nSeriesTested++;
+		}
+		System.out.println("error rate train on train = "+(1.0*nErrors/nSeriesTested)+" (should be 0)");
 	}
 	
 	public double getErrorRate(){

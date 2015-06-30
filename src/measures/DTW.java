@@ -45,14 +45,16 @@ public class DTW extends SimilarityMeasure {
 
 		return sqrt(matrix[length1-1][length2-1]);
 	}
-
-	private static final double squaredDistance(double a,double b){
+	
+	protected static final double squaredDistance(double a,double b){
 		double tmp = a-b;
 		return tmp*tmp;
 	}
 	
-	private final static double min(final double a, final double b, final double c) {
+	protected final static double min(final double a, final double b, final double c) {
 		return (a <= b) ? ((a <= c) ? a : c) : (b <= c) ? b : c;
 	}
+
+	
 
 }
