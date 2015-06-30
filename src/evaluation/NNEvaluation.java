@@ -56,6 +56,15 @@ public class NNEvaluation {
 
 	private long seed;
 	
+	/**
+	 * truth x predicted
+	 */
+	protected int[][]confusionMatrix;
+
+	private int nClasses;
+
+	private int[] classesNames;
+	
 
 	protected static final int N_BYTES = 1024000;
 	protected static final int ID_PIXEL_ATTRIBUTE = 0;
@@ -88,7 +97,7 @@ public class NNEvaluation {
 			int pixelID = Integer.valueOf(splitted[ID_PIXEL_ATTRIBUTE]);
 			
 			if(indexInTrain>=0){
-				if(r.nextDouble()<samplingRate){
+				if(r.nextDouble()<=samplingRate){
 					//this is for train
 					double[] timeSeries = new double[LENGTH_TIME_SERIES];
 					for (int i = 0; i < timeSeries.length; i++) {
@@ -104,6 +113,15 @@ public class NNEvaluation {
 				}
 			}
 		}
+		nClasses = allClassesNumbers.cardinality();
+		classesNames = new int[nClasses];
+		confusionMatrix = new int[nClasses][nClasses];
+		int index = 0;
+		for (int i = allClassesNumbers.nextSetBit(0); i >= 0; i = allClassesNumbers.nextSetBit(i+1)) {
+		     classesNames[index]=i;
+		     index++;
+		}
+		
 		System.out.println(allClassesNumbers.cardinality()+" classes in the dataset");
 		
 		Dataset trainDataset = new Dataset(trainTimeSeries, trainClassIndexes);
@@ -132,6 +150,7 @@ public class NNEvaluation {
 					
 					int classIndex = Integer.valueOf(splitted[CLASS_ATTRIBUTE]);
 //					System.out.println("predicted ="+predictedClassIndex+"\tref="+classIndex);
+					confusionMatrix[Arrays.binarySearch(classesNames,classIndex)][Arrays.binarySearch(classesNames,predictedClassIndex)]++;
 					if(classIndex!=predictedClassIndex){
 						nErrors++;
 					}
@@ -139,8 +158,6 @@ public class NNEvaluation {
 				}
 			}
 		}
-		
-		
 		
 	}
 	
@@ -271,6 +288,23 @@ public class NNEvaluation {
 
 	public void setSamplingRate(double samplingRate) {
 		this.samplingRate = samplingRate;
+	}
+	
+	public String toString(){
+		String res = "error rate = "+getErrorRate()+"\n";
+		res+="confusion matrix (truth x predicted)\n";
+		for (int j = 0; j < nClasses; j++) {
+			res+="\t"+classesNames[j];
+		}
+		res+="\n";
+		for (int i = 0; i < nClasses; i++) {
+			res+=classesNames[i];
+			for (int j = 0; j < nClasses; j++) {
+				res+="\t"+confusionMatrix[i][j];
+			}
+			res+="\n";
+		}
+		return res;
 	}
 
 }
