@@ -9,7 +9,7 @@ import measures.SimilarityMeasure;
 import data.Dataset;
 import data.TimeSeries;
 
-public class KNearestNeighbor implements TimeSeriesClassifier {
+public class KNearestNeighbor implements SequenceClassifier {
 	
 	protected SimilarityMeasure measure;
 	protected Dataset train;
@@ -49,26 +49,17 @@ public class KNearestNeighbor implements TimeSeriesClassifier {
 		List<TimeSeries> dataset = train.getData();
 		List<Integer> classLabels = train.getLabels();
 		if(measure.hasLowerBound()){
-			
 			for (int i = 0; i < dataset.size(); i++) {
 				TimeSeries s =dataset.get(i);
-				double lb = measure.computeLowerBound(query, s);
-				if(lb < topK[topK.length-1].distToQuery){
-					double d = measure.compute(query, s);
-					int insertionPoint = topK.length-1;
-					while(insertionPoint>0 && d <topK[insertionPoint].distToQuery){
-						topK[insertionPoint]=topK[insertionPoint-1];
-						insertionPoint--;
+				
+				if(measure.hasLowerBound()){
+					double lb = measure.computeLowerBound(query, s);
+					if(lb >= topK[topK.length-1].distToQuery){
+						break;
 					}
-					Neighbor<TimeSeries> newNeighbor = new Neighbor<TimeSeries>(s, i, d);
-					topK[insertionPoint] = newNeighbor;
 				}
-			}
-		}else{
-			
-			for (int i = 0; i < dataset.size(); i++) {
-				TimeSeries s =dataset.get(i);
-				double d = measure.compute(query, s);
+				
+				double d = measure.computeEA(query, s,topK[topK.length-1].distToQuery);
 				if(d < topK[topK.length-1].distToQuery){
 					int insertionPoint = topK.length-1;
 					while(insertionPoint>0 && d <topK[insertionPoint].distToQuery){
