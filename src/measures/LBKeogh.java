@@ -3,7 +3,7 @@ package measures;
 import static java.lang.Math.sqrt;
 import data.TimeSeries;
 
-public class LBKeogh extends SimilarityMeasure {
+public class LBKeogh extends SimilarityMeasure<TimeSeries> {
 
 	protected double[]L;
 	protected double[]U;

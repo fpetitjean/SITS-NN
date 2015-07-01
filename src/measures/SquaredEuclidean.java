@@ -2,7 +2,7 @@ package measures;
 
 import data.TimeSeries;
 
-public class SquaredEuclidean extends EarlyAbandonableMeasure{
+public class SquaredEuclidean extends EarlyAbandonableMeasure<TimeSeries>{
 
 	public SquaredEuclidean() {}
 	

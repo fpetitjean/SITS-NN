@@ -4,6 +4,7 @@ import java.io.IOException;
 import measures.DTWWindowed;
 import measures.SimilarityMeasure;
 import classification.NearestNeighbor;
+import data.TimeSeries;
 import evaluation.NNEvaluationNDVI;
 
 
@@ -14,8 +15,8 @@ public class LaunchDTWWindowed {
 		int windowSize = 2;
 		
 		File datasetFile = new File(args[0]);
-		SimilarityMeasure dtw = new DTWWindowed(maxLength,windowSize);
-		NearestNeighbor classifier = new NearestNeighbor(dtw);
+		SimilarityMeasure<TimeSeries> dtw = new DTWWindowed(maxLength,windowSize);
+		NearestNeighbor<TimeSeries> classifier = new NearestNeighbor<TimeSeries>(dtw);
 		NNEvaluationNDVI eval = new NNEvaluationNDVI(classifier,datasetFile);
 		eval.setSamplingRate(1.0);
 		eval.evaluate();

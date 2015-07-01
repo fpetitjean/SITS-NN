@@ -1,32 +1,30 @@
 package classification;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
 import measures.SimilarityMeasure;
 import data.Dataset;
-import data.TimeSeries;
 
-public class KNearestNeighbor implements SequenceClassifier {
+public class KNearestNeighbor<K> implements Classifier<K> {
 	
-	protected SimilarityMeasure measure;
-	protected Dataset train;
+	protected SimilarityMeasure<K> measure;
+	protected Dataset<K> train;
 	protected int k;
-	protected Neighbor<TimeSeries> []topK;
+	protected Neighbor<K> []topK;
 	protected BitSet allClassesNumbers;
 	protected int []classNameToIndex;
 	protected int nClasses;
 	protected int[]histogram;
 
-	public KNearestNeighbor(int k,SimilarityMeasure measure){
+	public KNearestNeighbor(int k,SimilarityMeasure<K> measure){
 		this.k = k;
 		this.measure = measure;
-		
 	}
 	
-	public void train(Dataset dataset){
+	@SuppressWarnings("unchecked")
+	public void train(Dataset<K> dataset){
 		this.train = dataset;
 		this.topK = new Neighbor[k];
 		allClassesNumbers = new BitSet();
@@ -44,13 +42,13 @@ public class KNearestNeighbor implements SequenceClassifier {
 		
 	}
 	
-	public int classify(TimeSeries query){
-		Arrays.fill(topK, new Neighbor<TimeSeries>(null, -1, Double.POSITIVE_INFINITY));
-		List<TimeSeries> dataset = train.getData();
+	public int classify(K query){
+		Arrays.fill(topK, new Neighbor<K>(null, -1, Double.POSITIVE_INFINITY));
+		List<K> dataset = train.getData();
 		List<Integer> classLabels = train.getLabels();
 		if(measure.hasLowerBound()){
 			for (int i = 0; i < dataset.size(); i++) {
-				TimeSeries s =dataset.get(i);
+				K s =dataset.get(i);
 				
 				if(measure.hasLowerBound()){
 					double lb = measure.computeLowerBound(query, s);
@@ -66,7 +64,7 @@ public class KNearestNeighbor implements SequenceClassifier {
 						topK[insertionPoint]=topK[insertionPoint-1];
 						insertionPoint--;
 					}
-					Neighbor<TimeSeries> newNeighbor = new Neighbor<TimeSeries>(s, i, d);
+					Neighbor<K> newNeighbor = new Neighbor<K>(s, i, d);
 					topK[insertionPoint] = newNeighbor;
 				}
 			}

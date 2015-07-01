@@ -1,9 +1,8 @@
 package classification;
 
 import data.Dataset;
-import data.TimeSeries;
 
-public interface TimeSeriesClassifier {
-	public void train(Dataset dataset);
-	public int classify(TimeSeries query);
+public interface Classifier<K> {
+	public void train(Dataset<K> dataset);
+	public int classify(K query);
 }

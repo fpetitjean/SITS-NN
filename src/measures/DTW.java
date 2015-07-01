@@ -3,7 +3,7 @@ package measures;
 import static java.lang.Math.sqrt;
 import data.TimeSeries;
 
-public class DTW extends SimilarityMeasure {
+public class DTW extends SimilarityMeasure<TimeSeries> {
 
 	protected double[][] matrix; 
 	

@@ -9,10 +9,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
 
-import measures.Euclidean;
 import measures.SimilarityMeasure;
-import classification.NearestNeighbor;
-import classification.TimeSeriesClassifier;
+import classification.Classifier;
 import data.Dataset;
 import data.TimeSeries;
 
@@ -23,7 +21,7 @@ public class NNEvaluationNDVI {
 	/**
 	 * Percentage of the dataset to train on
 	 */
-	protected double percentageForTrain = .5;
+	protected double percentageForTrain = .9;
 
 	/**
 	 * Percentage of pixels to use in each polygon (both train and test)
@@ -40,7 +38,7 @@ public class NNEvaluationNDVI {
 
 	protected int[] testPolygonNumbers;
 	
-	Dataset train,test;
+	Dataset<TimeSeries> train,test;
 
 	protected ArrayList<TimeSeries> trainTimeSeries;
 	
@@ -50,9 +48,9 @@ public class NNEvaluationNDVI {
 
 	protected int nSeriesTested;
 
-	protected SimilarityMeasure measure;
+	protected SimilarityMeasure<TimeSeries> measure;
 
-	private TimeSeriesClassifier classifier;
+	private Classifier<TimeSeries> classifier;
 
 	private long seed;
 	
@@ -73,7 +71,7 @@ public class NNEvaluationNDVI {
 	protected static final int INDEX_START_NDVI = 111;
 	protected static final int LENGTH_TIME_SERIES = 15;
 
-	public NNEvaluationNDVI(TimeSeriesClassifier classifier, File datasetFile) {
+	public NNEvaluationNDVI(Classifier<TimeSeries> classifier, File datasetFile) {
 		this.classifier = classifier;
 		this.datasetFile = datasetFile;
 		this.seed = 3071980L;
@@ -89,6 +87,7 @@ public class NNEvaluationNDVI {
 		fReader = new FileReader(this.datasetFile);
 		reader = new BufferedReader(fReader, N_BYTES);
 		String line;
+		
 		BitSet allClassesNumbers= new BitSet();
 		while ((line = reader.readLine()) != null) {
 			String[] splitted = line.split(",");
@@ -124,7 +123,7 @@ public class NNEvaluationNDVI {
 		
 		System.out.println(allClassesNumbers.cardinality()+" classes in the dataset");
 		
-		Dataset trainDataset = new Dataset(trainTimeSeries, trainClassIndexes);
+		Dataset<TimeSeries> trainDataset = new Dataset<TimeSeries>(trainTimeSeries, trainClassIndexes);
 //		System.out.println("train dataset created with "+trainTimeSeries.size()+" time series");
 		classifier.train(trainDataset);
 		
@@ -197,7 +196,7 @@ public class NNEvaluationNDVI {
 		}
 		System.out.println(allClassesNumbers.cardinality()+" classes in the dataset");
 		
-		Dataset trainDataset = new Dataset(trainTimeSeries, trainClassIndexes);
+		Dataset<TimeSeries> trainDataset = new Dataset<TimeSeries>(trainTimeSeries, trainClassIndexes);
 //		System.out.println("train dataset created with "+trainTimeSeries.size()+" time series");
 		classifier.train(trainDataset);
 		

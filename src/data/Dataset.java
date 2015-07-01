@@ -3,22 +3,22 @@ package data;
 import java.util.Iterator;
 import java.util.List;
 
-public class Dataset implements Iterable<TimeSeries>{
-	List<TimeSeries> data;
+public class Dataset<K> implements Iterable<K>{
+	List<K> data;
 	List<Integer> classIndexes;
 
-	public Dataset(List<TimeSeries> data, List<Integer> classIndexes) {
+	public Dataset(List<K> data, List<Integer> classIndexes) {
 		super();
 		this.data = data;
 		this.classIndexes = classIndexes;
 	}
 
 	@Override
-	public Iterator<TimeSeries> iterator() {
+	public Iterator<K> iterator() {
 		return data.iterator();
 	}
 	
-	public List<TimeSeries> getData(){
+	public List<K> getData(){
 		return data;
 	}
 	

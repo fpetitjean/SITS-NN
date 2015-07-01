@@ -2,7 +2,7 @@ package measures;
 
 import data.TimeSeries;
 
-public class Euclidean extends SimilarityMeasure {
+public class Euclidean extends SimilarityMeasure<TimeSeries> {
 
 	public Euclidean() {}
 	
