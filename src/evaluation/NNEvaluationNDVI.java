@@ -16,7 +16,7 @@ import classification.TimeSeriesClassifier;
 import data.Dataset;
 import data.TimeSeries;
 
-public class NNEvaluation {
+public class NNEvaluationNDVI {
 
 	protected File datasetFile;
 
@@ -73,7 +73,7 @@ public class NNEvaluation {
 	protected static final int INDEX_START_NDVI = 111;
 	protected static final int LENGTH_TIME_SERIES = 15;
 
-	public NNEvaluation(TimeSeriesClassifier classifier, File datasetFile) {
+	public NNEvaluationNDVI(TimeSeriesClassifier classifier, File datasetFile) {
 		this.classifier = classifier;
 		this.datasetFile = datasetFile;
 		this.seed = 3071980L;
@@ -101,7 +101,7 @@ public class NNEvaluation {
 					//this is for train
 					double[] timeSeries = new double[LENGTH_TIME_SERIES];
 					for (int i = 0; i < timeSeries.length; i++) {
-						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i])/1000.0;
+						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i]);
 					}
 					TimeSeries ts = new TimeSeries(timeSeries, pixelID, polygonID);
 					trainTimeSeries.add(ts);
@@ -143,7 +143,7 @@ public class NNEvaluation {
 				if(r.nextDouble()<samplingRate){
 					double[] timeSeries = new double[LENGTH_TIME_SERIES];
 					for (int i = 0; i < timeSeries.length; i++) {
-						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i])/1000.0;
+						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i]);
 					}
 					TimeSeries ts = new TimeSeries(timeSeries, pixelID, polygonID);
 					int predictedClassIndex = classifier.classify(ts);

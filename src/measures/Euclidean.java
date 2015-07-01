@@ -15,14 +15,11 @@ public class Euclidean extends SimilarityMeasure {
 		
 		double distance = 0.0;
 		for (int i = 0; i < minLength; i++) {
-			distance += squaredDistance(series1[i], series2[i]);
+			distance += Tools.squaredDistance(series1[i], series2[i]);
 		}
 		return Math.sqrt(distance);
 	}
 
-	private static final double squaredDistance(double a,double b){
-		double tmp = a-b;
-		return tmp*tmp;
-	}
+	
 
 }

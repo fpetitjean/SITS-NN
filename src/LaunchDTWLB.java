@@ -5,7 +5,7 @@ import measures.DTWWindowed;
 import measures.LBKeogh;
 import measures.SimilarityMeasure;
 import classification.NearestNeighbor;
-import evaluation.NNEvaluation;
+import evaluation.NNEvaluationNDVI;
 
 
 public class LaunchDTWLB {
@@ -20,8 +20,8 @@ public class LaunchDTWLB {
 		SimilarityMeasure lb = new LBKeogh(maxLength,windowSize);
 		dtw.setLowerBoundComputer(lb);
 		NearestNeighbor classifier = new NearestNeighbor(dtw);
-		NNEvaluation eval = new NNEvaluation(classifier,datasetFile);
-		eval.setSamplingRate(0.01);
+		NNEvaluationNDVI eval = new NNEvaluationNDVI(classifier,datasetFile);
+		eval.setSamplingRate(1.0);
 		eval.evaluate();
 		System.out.println("error rate = "+eval.getErrorRate());
 	}

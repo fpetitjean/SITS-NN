@@ -1,10 +1,9 @@
 import java.io.File;
 import java.io.IOException;
 
-import classification.NearestNeighbor;
-import measures.DTW;
 import measures.Euclidean;
-import evaluation.NNEvaluation;
+import classification.NearestNeighbor;
+import evaluation.NNEvaluationNDVI;
 
 
 public class LaunchEUC {
@@ -13,12 +12,10 @@ public class LaunchEUC {
 		File datasetFile = new File(args[0]);
 		Euclidean euc = new Euclidean();
 		NearestNeighbor classifier = new NearestNeighbor(euc);
-		NNEvaluation eval = new NNEvaluation(classifier,datasetFile);
-		eval.setSamplingRate(0.1);
-		eval.evaluateTrainOnTrain();
+		NNEvaluationNDVI eval = new NNEvaluationNDVI(classifier,datasetFile);
+		eval.setSamplingRate(1.0);
 		eval.evaluate();
-		System.out.println("error rate = "+eval.getErrorRate());
-
+		System.out.println(eval);
 	}
 
 }

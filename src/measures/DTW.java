@@ -28,27 +28,22 @@ public class DTW extends SimilarityMeasure {
 		}
 
 		int i, j;
-		matrix[0][0] = squaredDistance(series1[0],series2[0]);
+		matrix[0][0] = Tools.squaredDistance(series1[0],series2[0]);
 		for (i = 1; i < length1; i++) {
-			matrix[i][0] = matrix[i - 1][0]	+ squaredDistance(series1[i],series2[0]);
+			matrix[i][0] = matrix[i - 1][0]	+ Tools.squaredDistance(series1[i],series2[0]);
 		}
 		for (j = 1; j < length2; j++) {
-			matrix[0][j] = matrix[0][j - 1] + squaredDistance(series1[0],series2[j]);
+			matrix[0][j] = matrix[0][j - 1] + Tools.squaredDistance(series1[0],series2[j]);
 		}
 
 		for (i = 1; i < length1; i++) {
 			for (j = 1; j < length2; j++) {
 				matrix[i][j] = min(matrix[i - 1][j - 1],matrix[i][j - 1], matrix[i - 1][j])
-						+ squaredDistance(series1[i],series2[j]);
+						+ Tools.squaredDistance(series1[i],series2[j]);
 			}
 		}
 
 		return sqrt(matrix[length1-1][length2-1]);
-	}
-	
-	protected static final double squaredDistance(double a,double b){
-		double tmp = a-b;
-		return tmp*tmp;
 	}
 	
 	protected final static double min(final double a, final double b, final double c) {

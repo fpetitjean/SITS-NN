@@ -13,6 +13,7 @@ public class TimeSeries{
 		this.series = series;
 		this.id_pixel = id_pixel;
 		this.id_polygon = id_polygon;
+		zNormalize();
 	}
 	
 	public double[]getSeries(){
@@ -29,5 +30,25 @@ public class TimeSeries{
 	}
 	public int getID_pixel(){
 		return id_pixel;
+	}
+
+	public void zNormalize() {
+		double mean = 0.0;
+		for(double v:series){
+			mean+=v;
+		}
+		mean/=series.length;
+		double stddev = 0.0;
+		for(double v:series){
+			double diff = (v-mean);
+			stddev+=(diff*diff);
+		}
+		stddev = Math.sqrt(stddev/series.length);
+		
+		for (int i = 0; i < series.length; i++) {
+			series[i]=(series[i]-mean)/stddev;
+		}
+		
+		
 	}
 }

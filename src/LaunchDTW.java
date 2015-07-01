@@ -4,7 +4,7 @@ import java.io.IOException;
 import measures.DTW;
 import measures.SimilarityMeasure;
 import classification.NearestNeighbor;
-import evaluation.NNEvaluation;
+import evaluation.NNEvaluationNDVI;
 
 
 public class LaunchDTW {
@@ -13,9 +13,9 @@ public class LaunchDTW {
 		File datasetFile = new File(args[0]);
 		SimilarityMeasure dtw = new DTW(20);
 		NearestNeighbor classifier = new NearestNeighbor(dtw);
-		NNEvaluation eval = new NNEvaluation(classifier,datasetFile);
-		eval.setSamplingRate(0.01);
-		eval.evaluateTrainOnTrain();
+		NNEvaluationNDVI eval = new NNEvaluationNDVI(classifier,datasetFile);
+		eval.setSamplingRate(1.0);
+//		eval.evaluateTrainOnTrain();
 		eval.evaluate();
 		System.out.println("error rate = "+eval.getErrorRate());
 

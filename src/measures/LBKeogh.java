@@ -47,17 +47,12 @@ public class LBKeogh extends SimilarityMeasure {
 		for (int i = 0; i < minLength; i++) {
 			double c = series2[i];
 			if (c < L[i]) {
-				res += squaredDistance(L[i],c);
+				res += Tools.squaredDistance(L[i],c);
 			} else if (U[i] < c) {
-				res += squaredDistance(U[i],c);
+				res += Tools.squaredDistance(U[i],c);
 			}
 		}
 		return sqrt(res);
-	}
-	
-	private static final double squaredDistance(double a,double b){
-		double tmp = a-b;
-		return tmp*tmp;
 	}
 	
 }
