@@ -31,20 +31,27 @@ public class DTWWindowed extends DTW{
 		
 		int i, j;
 		matrix[0][0] = squaredDistance(series1[0],series2[0]);
-		for (i = 1; i < length1; i++) {
+		for (i = 1; i < Math.min(length1, 1+windowSize); i++) {
 			matrix[i][0] = matrix[i - 1][0]	+ squaredDistance(series1[i],series2[0]);
 		}
-		for (j = 1; j < Math.min(length2, windowSize); j++) {
+		
+		for (j = 1; j < Math.min(length2, 1+windowSize); j++) {
 			matrix[0][j] = matrix[0][j - 1] + squaredDistance(series1[0],series2[j]);
 		}
-
+		if(j<length2)matrix[0][j] = Double.POSITIVE_INFINITY;
+		
 		for (i = 1; i < length1; i++) {
-			for (j = Math.max(1, i-windowSize); j < Math.min(length2, i+windowSize); j++) {
+			int jStart = (i-windowSize<1)?1:i-windowSize;
+			int jStop = (i+windowSize+1>length2)?length2:i+windowSize+1;
+			
+			matrix[i][jStart-1] = Double.POSITIVE_INFINITY;
+			for (j = jStart; j < jStop; j++) {
 				matrix[i][j] = min(matrix[i - 1][j - 1],matrix[i][j - 1], matrix[i - 1][j])
 						+ squaredDistance(series1[i],series2[j]);
 			}
+			if(jStop<length2)matrix[i][jStop] = Double.POSITIVE_INFINITY;
 		}
-
+		
 		return sqrt(matrix[length1-1][length2-1]);
 	}
 	

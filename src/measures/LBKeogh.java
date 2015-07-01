@@ -32,9 +32,9 @@ public class LBKeogh extends SimilarityMeasure {
 		for (int i = 0; i < minLength; i++) {
 			double min = Double.POSITIVE_INFINITY;
 			double max = Double.NEGATIVE_INFINITY;
-			int startR = Math.max(0, i - windowSize);
-			int stopR = Math.min(minLength - 1, i + windowSize);
-			for (int j = startR; j <= stopR; j++) {
+			int jStart = (i-windowSize<0)?0:i-windowSize;
+			int jStop = (i+windowSize+1>length2)?length2:i+windowSize+1;
+			for (int j = jStart; j < jStop; j++) {
 				double value = series1[j];
 				min = Math.min(min, value);
 				max = Math.max(max, value);
@@ -52,7 +52,6 @@ public class LBKeogh extends SimilarityMeasure {
 				res += squaredDistance(U[i],c);
 			}
 		}
-
 		return sqrt(res);
 	}
 	
