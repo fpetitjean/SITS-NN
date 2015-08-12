@@ -2,7 +2,7 @@ package data;
 
 import java.util.Arrays;
 
-public class TimeSeries{
+public class TimeSeries implements ZNormalizable{
 	
 	double[]series;
 	int id_pixel;

@@ -2,7 +2,7 @@ package data;
 
 import java.util.Arrays;
 
-public class TimeSeriesMultiDim{
+public class TimeSeriesMultiDim implements ZNormalizable{
 	
 	double[][]series;
 	int id_pixel;
@@ -32,6 +32,9 @@ public class TimeSeriesMultiDim{
 	}
 	public int getID_pixel(){
 		return id_pixel;
+	}
+	public int getNDimS(){
+		return this.nDims;
 	}
 
 	public void zNormalize() {
