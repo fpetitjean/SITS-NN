@@ -24,6 +24,7 @@ public class KNearestNeighbor<K> implements Classifier<K> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public void train(Dataset<K> dataset){
 		this.train = dataset;
 		this.topK = new Neighbor[k];
@@ -42,31 +43,30 @@ public class KNearestNeighbor<K> implements Classifier<K> {
 		
 	}
 	
+	@Override
 	public int classify(K query){
 		Arrays.fill(topK, new Neighbor<K>(null, -1, Double.POSITIVE_INFINITY));
 		List<K> dataset = train.getData();
 		List<Integer> classLabels = train.getLabels();
-		if(measure.hasLowerBound()){
-			for (int i = 0; i < dataset.size(); i++) {
-				K s =dataset.get(i);
-				
-				if(measure.hasLowerBound()){
-					double lb = measure.computeLowerBound(query, s);
-					if(lb >= topK[topK.length-1].distToQuery){
-						break;
-					}
+		for (int i = 0; i < dataset.size(); i++) {
+			K s =dataset.get(i);
+			
+			if(measure.hasLowerBound()){
+				double lb = measure.computeLowerBound(query, s);
+				if(lb >= topK[topK.length-1].distToQuery){
+					continue;
 				}
-				
-				double d = measure.computeEA(query, s,topK[topK.length-1].distToQuery);
-				if(d < topK[topK.length-1].distToQuery){
-					int insertionPoint = topK.length-1;
-					while(insertionPoint>0 && d <topK[insertionPoint].distToQuery){
-						topK[insertionPoint]=topK[insertionPoint-1];
-						insertionPoint--;
-					}
-					Neighbor<K> newNeighbor = new Neighbor<K>(s, i, d);
-					topK[insertionPoint] = newNeighbor;
+			}
+			
+			double d = measure.computeEA(query, s,topK[topK.length-1].distToQuery);
+			if(d < topK[topK.length-1].distToQuery){
+				int insertionPoint = topK.length-1;
+				while(insertionPoint>0 && d <topK[insertionPoint].distToQuery){
+					topK[insertionPoint]=topK[insertionPoint-1];
+					insertionPoint--;
 				}
+				Neighbor<K> newNeighbor = new Neighbor<K>(s, i, d);
+				topK[insertionPoint] = newNeighbor;
 			}
 		}
 			
