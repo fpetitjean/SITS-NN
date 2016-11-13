@@ -1,8 +1,10 @@
 package measures;
 
+import java.util.List;
+
 import data.TimeSeriesMultiDim;
 
-public class EuclideanMultiDim extends SimilarityMeasure<TimeSeriesMultiDim> {
+public class EuclideanMultiDim extends SimilarityMeasure<TimeSeriesMultiDim> implements Averageable<TimeSeriesMultiDim> {
 
 	public EuclideanMultiDim() {}
 	
@@ -27,6 +29,27 @@ public class EuclideanMultiDim extends SimilarityMeasure<TimeSeriesMultiDim> {
 		return Math.sqrt(distance);
 	}
 
-	
+	@Override
+	public TimeSeriesMultiDim average(List<TimeSeriesMultiDim> set) {
+		double[][] sample = set.get(0).getSeries();
+		
+		int length = sample.length;
+		int nDims = sample[0].length;
+		double[][]mean = new double[length][nDims];
+		for(TimeSeriesMultiDim ts:set){
+			double[][]series = ts.getSeries();
+			for (int l = 0; l < length; l++) {
+				for (int d = 0; d < nDims; d++) {
+					mean[l][d]+=series[l][d];
+				}
+			}
+		}
+		for (int l = 0; l < length; l++) {
+			for (int d = 0; d < nDims; d++) {
+				mean[l][d]/=set.size();
+			}
+		}
+		return new TimeSeriesMultiDim(mean, -1, set.get(0).getID_polygon());
+	}
 
 }
