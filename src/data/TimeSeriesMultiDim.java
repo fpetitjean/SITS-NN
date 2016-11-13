@@ -24,7 +24,13 @@ public class TimeSeriesMultiDim implements ZNormalizable{
 
 	@Override
 	public String toString(){
-		return Arrays.toString(series);
+		String str = "mean (parcel="+id_polygon+")\n\t[";
+		str+= Arrays.toString(series[0]);
+		for (int l = 1; l < series.length; l++) {
+			str+= ","+Arrays.toString(series[l]);
+		}
+		str+="]";
+		return str;
 	}
 	
 	public int getID_polygon(){
