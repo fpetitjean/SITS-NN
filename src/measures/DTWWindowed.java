@@ -43,8 +43,8 @@ public class DTWWindowed extends DTW{
 		for (i = 1; i < length1; i++) {
 			int jStart = (i-windowSize<1)?1:i-windowSize;
 			int jStop = (i+windowSize+1>length2)?length2:i+windowSize+1;
-			
-			if(jStart!=1)matrix[i][jStart-1] = Double.POSITIVE_INFINITY;
+			int indexInftyLeft = i-windowSize-1;
+			if(indexInftyLeft>=0)matrix[i][indexInftyLeft] = Double.POSITIVE_INFINITY;
 			for (j = jStart; j < jStop; j++) {
 				matrix[i][j] = min(matrix[i - 1][j - 1],matrix[i][j - 1], matrix[i - 1][j])
 						+ Tools.squaredDistance(series1[i],series2[j]);
