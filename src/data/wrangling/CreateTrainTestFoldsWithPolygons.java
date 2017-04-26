@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 /**
@@ -37,6 +38,8 @@ public class CreateTrainTestFoldsWithPolygons {
 	protected HashMap<Integer, Integer> numberSeriesForParcel;
 	
 	protected ArrayList<Integer> trainClassIndexes;
+	
+	protected HashSet<String> classesToSkip;
 	
 	protected int nTotalSeries;
 
@@ -79,23 +82,26 @@ public class CreateTrainTestFoldsWithPolygons {
 		
 		while ((line = reader.readLine()) != null) {
 			String[] splitted = line.split(",");
-			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
-//			int indexInTrain = Arrays.binarySearch(trainPolygonNumbers, parcelID);
-			int indexInTrain = Collections.binarySearch(trainPolygonNumbers, polygonID);
-			
-			BufferedWriter csv;
-			if(indexInTrain>=0){
-				csv = csvTrain;
-			}else{
-				csv = csvTest;
+			String className = splitted[CLASS_ATTRIBUTE]; 
+			if(classesToSkip==null || !classesToSkip.contains(className)){
+        			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
+        //			int indexInTrain = Arrays.binarySearch(trainPolygonNumbers, parcelID);
+        			int indexInTrain = Collections.binarySearch(trainPolygonNumbers, polygonID);
+        			
+        			BufferedWriter csv;
+        			if(indexInTrain>=0){
+        				csv = csvTrain;
+        			}else{
+        				csv = csvTest;
+        			}
+        			
+        			csv.write(splitted[CLASS_ATTRIBUTE]);
+        			
+        			for (int i = INDEX_START_DATA_ATTRIBUTES; i < splitted.length; i++) {
+        				csv.write(","+splitted[i]);
+        			}
+        			csv.newLine();
 			}
-			
-			csv.write(splitted[CLASS_ATTRIBUTE]);
-			
-			for (int i = INDEX_START_DATA_ATTRIBUTES; i < splitted.length; i++) {
-				csv.write(","+splitted[i]);
-			}
-			csv.newLine();
 		}
 		csvTrain.close();
 		csvTest.close();
@@ -116,14 +122,17 @@ public class CreateTrainTestFoldsWithPolygons {
 		
 		while ((line = reader.readLine()) != null) {
 			splitted = line.split(",");
-			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
-			Integer numberSeries = numberSeriesForParcel.get(polygonID);
-			if(numberSeries==null){
-				numberSeriesForParcel.put(polygonID, 1);
-			}else{
-				numberSeriesForParcel.put(polygonID, numberSeries+1);
+			String className = splitted[CLASS_ATTRIBUTE]; 
+			if(classesToSkip==null || !classesToSkip.contains(className)){
+        			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
+        			Integer numberSeries = numberSeriesForParcel.get(polygonID);
+        			if(numberSeries==null){
+        				numberSeriesForParcel.put(polygonID, 1);
+        			}else{
+        				numberSeriesForParcel.put(polygonID, numberSeries+1);
+        			}
+        			nTotalSeries++;
 			}
-			nTotalSeries++;
 		}
 
 		int nPolygons = numberSeriesForParcel.size();
@@ -180,17 +189,30 @@ public class CreateTrainTestFoldsWithPolygons {
 	public void setPercentageForTrain(double percentageForTrain) {
 		this.percentageForTrain = percentageForTrain;
 	}
+	
+	public void setClassesToSkip(HashSet<String> classes){
+		this.classesToSkip = classes;
+	}
 
 	
 	public static void main(String...args) throws NumberFormatException, IOException{
-		File csvWithPolygons = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-with-plots.csv");
-		File train = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-polygons-train.csv");
-		File test = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-polygons-test.csv");
-		double percentageTrainTest = 0.5;
-		
+		File csvWithPolygons = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated.csv");
+		File train = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-train-90.csv");
+		File test = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-test-10.csv");
+		double percentageTrainTest = 0.9;
+		HashSet<String> classesToSkip = new HashSet<>();
+		classesToSkip.add("bati diffus");
+		classesToSkip.add("bati dense");
+		classesToSkip.add("bati indu");
+		classesToSkip.add("surface minerale");
+		classesToSkip.add("unclassified");
+					
 		
 		CreateTrainTestFoldsWithPolygons wrangler = new CreateTrainTestFoldsWithPolygons(csvWithPolygons);
 		wrangler.setPercentageForTrain(percentageTrainTest);
+//		wrangler.setClassesToSkip(classesToSkip);
+		
+		
 		wrangler.createTrainTestFiles(train, test);
 	}
 	
