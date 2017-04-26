@@ -17,7 +17,7 @@ import classification.Classifier;
 import data.Dataset;
 import data.TimeSeriesMultiDim;
 
-public class NCPerParcelEvaluationAllDims {
+public class NCPerPolygonEvaluationAllDims {
 
 	protected File datasetFile;
 
@@ -77,7 +77,7 @@ public class NCPerParcelEvaluationAllDims {
 	
 	private Random r ;
 
-	public NCPerParcelEvaluationAllDims(Classifier<TimeSeriesMultiDim> classifier, Averageable<TimeSeriesMultiDim>averagingMethod,File datasetFile) {
+	public NCPerPolygonEvaluationAllDims(Classifier<TimeSeriesMultiDim> classifier, Averageable<TimeSeriesMultiDim>averagingMethod,File datasetFile) {
 		this.classifier = classifier;
 		this.datasetFile = datasetFile;
 		this.seed = 3071980L;
