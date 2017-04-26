@@ -127,11 +127,13 @@ public class NNEvaluationNDVI {
 //		System.out.println("train dataset created with "+trainTimeSeries.size()+" time series");
 		classifier.train(trainDataset);
 		
+		long start = System.currentTimeMillis();
 		//second pass for test
 		nSeriesTested = 0;
 		nErrors = 0;
 		fReader = new FileReader(this.datasetFile);
 		reader = new BufferedReader(fReader, N_BYTES);
+		double[] timeSeries = new double[LENGTH_TIME_SERIES];
 		while ((line = reader.readLine()) != null) {
 			String[] splitted = line.split(",");
 			int polygonID = Integer.valueOf(splitted[ID_POLYGON_ATTRIBUTE]);
@@ -140,7 +142,6 @@ public class NNEvaluationNDVI {
 			
 			if(indexInTest>=0){
 				if(r.nextDouble()<samplingRate){
-					double[] timeSeries = new double[LENGTH_TIME_SERIES];
 					for (int i = 0; i < timeSeries.length; i++) {
 						timeSeries[i]=Double.valueOf(splitted[INDEX_START_NDVI+i]);
 					}
@@ -149,14 +150,19 @@ public class NNEvaluationNDVI {
 					
 					int classIndex = Integer.valueOf(splitted[CLASS_ATTRIBUTE]);
 //					System.out.println("predicted ="+predictedClassIndex+"\tref="+classIndex);
-					confusionMatrix[Arrays.binarySearch(classesNames,classIndex)][Arrays.binarySearch(classesNames,predictedClassIndex)]++;
+//					confusionMatrix[Arrays.binarySearch(classesNames,classIndex)][Arrays.binarySearch(classesNames,predictedClassIndex)]++;
 					if(classIndex!=predictedClassIndex){
 						nErrors++;
 					}
 					nSeriesTested++;
 				}
 			}
+			double timePerClassification = 1.0*(System.currentTimeMillis()-start)/nSeriesTested;
+			System.out.println("Avg time per classification= "+timePerClassification+"ms (training of size "+trainTimeSeries.size()+")");
 		}
+		long time = System.currentTimeMillis()-start;
+		System.out.println("Classification of "+nSeriesTested+" time series (length="+LENGTH_TIME_SERIES+") with training of size "+trainTimeSeries.size());
+		System.out.println("Time="+time+"ms");
 		
 	}
 	
