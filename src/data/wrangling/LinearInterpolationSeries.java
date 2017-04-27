@@ -7,9 +7,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -25,9 +29,10 @@ public class LinearInterpolationSeries {
 	protected File datasetFile;
 	protected BufferedReader reader;
 	protected FileReader fReader;
-	NumberFormat nf;
+	protected NumberFormat nf;
+	protected long[]dates; 
 	
-	protected static final int N_BYTES = 1024000;
+	protected static final int N_BYTES = 100*1024*1024;
 	protected static final int ID_POLYGON_ATTRIBUTE = 1;
 	protected static final int CLASS_ATTRIBUTE = 0;
 	protected static final int INDEX_START_DATA_ATTRIBUTES = 2;
@@ -40,11 +45,14 @@ public class LinearInterpolationSeries {
 	public LinearInterpolationSeries(File datasetFile) {
 		this.datasetFile = datasetFile;
 		this.nf = NumberFormat.getInstance();
-		
+		this.nf.setMaximumFractionDigits(4);
+		this.dates = new long[LENGTH_TIME_SERIES];
+		for (int i = 0; i < dates.length; i++) {
+			this.dates[i]=i;
+		}
 	}
 	
-	public void createInterpolatedDataset(File interpolatedDataFile,int nDigits) throws NumberFormatException, IOException{
-		nf.setMaximumFractionDigits(nDigits);
+	public void createInterpolatedDataset(File interpolatedDataFile) throws NumberFormatException, IOException{
 		fReader = new FileReader(this.datasetFile);
 		reader = new BufferedReader(fReader, N_BYTES);
 		String line;
@@ -109,6 +117,7 @@ public class LinearInterpolationSeries {
 				if(!missing[t])continue;
 				//this is a missing value, previous one will always exist (doing a propagating forward interpolation)
 				double[]previousElement = series[t-1];
+				long datePrevious = dates[t-1];
 				
 				//finding next non-missing value
 				index = t+1;
@@ -118,12 +127,15 @@ public class LinearInterpolationSeries {
 				//index now has the first value that is not missing after t
 				
 				double[]nextElement = series[index];
+				long dateNext= dates[index];
+				
 				
 				//now filling the missing values
 				for (int t1 = t; t1 < index; t1++) {
+					long dateT1 = dates[t1];
 					for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
-						double unitSlope = (nextElement[a]-previousElement[a])/(index-(t-1));
-						series[t1][a]=previousElement[a]+unitSlope*(t1-(t-1));
+						double unitSlope = (nextElement[a]-previousElement[a])/(dateNext-datePrevious);
+						series[t1][a]=previousElement[a]+unitSlope*(dateT1-datePrevious);
 					}
 					missing[t1]=false;
 				}
@@ -151,14 +163,42 @@ public class LinearInterpolationSeries {
 		out.close();
 		
 	}
+	
+	public void setNDigits(int nDigits){
+		this.nf.setMaximumFractionDigits(nDigits);
+	}
+	
+	public void setDates(Date[]dates){
+		GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
+		for (int i = 0; i < this.dates.length; i++) {
+			cal.setTime(dates[i]);
+			this.dates[i]=cal.getTimeInMillis()/1000;//seconds is enough
+		}
+	}
+	
+	
 
 	
-	public static void main(String...args) throws NumberFormatException, IOException{
+	public static void main(String...args) throws NumberFormatException, IOException, ParseException{
 		File csvIn= new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots.csv");
-		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated.csv");
+		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-2.csv");
+		
+		File folderWithImagesForDates = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/2006-3B");
+		File []files = folderWithImagesForDates.listFiles(f->f.getName().endsWith("tif"));
+		Arrays.sort(files);
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd"); 
+		Date[]dates = new Date[files.length];
+		for (int i = 0; i < dates.length; i++) {
+				String fileName = files[i].getName();
+			fileName = fileName.substring(0, fileName.length()-4);
+			System.out.println(fileName);
+			dates[i]=df.parse(fileName);
+		}
+		
 		
 		LinearInterpolationSeries wrangler = new LinearInterpolationSeries(csvIn);
-		wrangler.createInterpolatedDataset(out,4);
+		wrangler.setDates(dates);
+		wrangler.createInterpolatedDataset(out);
 	}
 	
 }
