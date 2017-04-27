@@ -37,8 +37,6 @@ public class CreateTrainTestFoldsWithPolygons {
 
 	protected HashMap<Integer, Integer> numberSeriesForParcel;
 	
-	protected ArrayList<Integer> trainClassIndexes;
-	
 	protected HashSet<String> classesToSkip;
 	
 	protected int nTotalSeries;
@@ -50,8 +48,6 @@ public class CreateTrainTestFoldsWithPolygons {
 	protected static final int CLASS_ATTRIBUTE = 0;
 	protected static final int INDEX_START_DATA_ATTRIBUTES = 2;
 	protected static final int LENGTH_TIME_SERIES = 46;
-	protected static final int N_BANDS = 3;
-	protected static final int N_DATA_ATTRIBUTES_PER_DATE = N_BANDS;//add number if indices as well
 	protected final boolean hasHeader = true;
 	
 	private Random r ;
@@ -66,7 +62,6 @@ public class CreateTrainTestFoldsWithPolygons {
 		createFolds();
 		
 		//build train and test datasets (1pass over the data)
-		trainClassIndexes = new ArrayList<Integer>();
 		fReader = new FileReader(this.datasetFile);
 		reader = new BufferedReader(fReader, N_BYTES);
 		String line;
@@ -74,8 +69,14 @@ public class CreateTrainTestFoldsWithPolygons {
 		BufferedWriter csvTrain = new BufferedWriter(new FileWriter(trainFile), N_BYTES);
 		BufferedWriter csvTest = new BufferedWriter(new FileWriter(testFile), N_BYTES);
 		
-		//skip header
-		if(hasHeader)reader.readLine();
+		//header
+		if(hasHeader){
+			line = reader.readLine();
+			csvTrain.write(line);
+			csvTrain.newLine();
+			csvTest.write(line);
+			csvTest.newLine();
+		}
 		
 		Collections.sort(trainPolygonNumbers);
 		Collections.sort(testPolygonNumbers);
@@ -147,7 +148,6 @@ public class CreateTrainTestFoldsWithPolygons {
 
 		//~ number of series to try to get in train
 		int quotaTrain = (int) Math.ceil(nTotalSeries * percentageForTrain);
-		int quotaTest = nTotalSeries - quotaTrain;
 
 		trainPolygonNumbers = new ArrayList<>();
 		testPolygonNumbers = new ArrayList<>();
@@ -174,7 +174,6 @@ public class CreateTrainTestFoldsWithPolygons {
 				System.out.println("polygon "+polygonID+" assigned to test");
 				// this is a polygon for test
 				testPolygonNumbers.add(polygonID);
-				quotaTest-=nSeriesForPolygon;
 			}
 //			nPolygonsToAssign--;
 			nRemainingSeries-=nSeriesForPolygon;

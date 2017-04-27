@@ -59,7 +59,7 @@ public class LinearInterpolationSeries {
 		
 		BufferedWriter out = new BufferedWriter(new FileWriter(interpolatedDataFile), N_BYTES);
 		
-		//skip header
+		//header
 		if(hasHeader){
 			line = reader.readLine();
 			out.write(line);
@@ -181,7 +181,7 @@ public class LinearInterpolationSeries {
 	
 	public static void main(String...args) throws NumberFormatException, IOException, ParseException{
 		File csvIn= new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots.csv");
-		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-2.csv");
+		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated.csv");
 		
 		File folderWithImagesForDates = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/2006-3B");
 		File []files = folderWithImagesForDates.listFiles(f->f.getName().endsWith("tif"));
