@@ -1,8 +1,10 @@
 package measures;
 
+import java.util.List;
+
 import data.TimeSeries;
 
-public class Euclidean extends SimilarityMeasure<TimeSeries> {
+public class Euclidean extends SimilarityMeasure<TimeSeries>implements Averageable<TimeSeries>  {
 
 	public Euclidean() {}
 	
@@ -18,6 +20,24 @@ public class Euclidean extends SimilarityMeasure<TimeSeries> {
 			distance += Tools.squaredDistance(series1[i], series2[i]);
 		}
 		return Math.sqrt(distance);
+	}
+
+	@Override
+	public TimeSeries average(List<TimeSeries> set) {
+		double[] sample = set.get(0).getSeries();
+		
+		int length = sample.length;
+		double[]mean = new double[length];
+		for(TimeSeries ts:set){
+			double[]series = ts.getSeries();
+			for (int l = 0; l < length; l++) {
+				mean[l]+=series[l];
+			}
+		}
+		for (int l = 0; l < length; l++) {
+				mean[l]/=set.size();
+		}
+		return new TimeSeries(mean, -1, set.get(0).getID_polygon());
 	}
 
 	

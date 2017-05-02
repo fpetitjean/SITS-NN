@@ -1,8 +1,10 @@
 package measures;
 
+import java.util.List;
+
 import data.TimeSeries;
 
-public class SquaredEuclidean extends EarlyAbandonableMeasure<TimeSeries>{
+public class SquaredEuclidean extends EarlyAbandonableMeasure<TimeSeries>implements Averageable<TimeSeries>  {
 
 	public SquaredEuclidean() {}
 	
@@ -34,6 +36,24 @@ public class SquaredEuclidean extends EarlyAbandonableMeasure<TimeSeries>{
 			}
 		}
 		return distance;
+	}
+
+	@Override
+	public TimeSeries average(List<TimeSeries> set) {
+		double[] sample = set.get(0).getSeries();
+		
+		int length = sample.length;
+		double[]mean = new double[length];
+		for(TimeSeries ts:set){
+			double[]series = ts.getSeries();
+			for (int l = 0; l < length; l++) {
+				mean[l]+=series[l];
+			}
+		}
+		for (int l = 0; l < length; l++) {
+				mean[l]/=set.size();
+		}
+		return new TimeSeries(mean, -1, set.get(0).getID_polygon());
 	}
 
 	
