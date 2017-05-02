@@ -59,7 +59,6 @@ public class AverageSeriesPerPolygon {
 
 	public void createData(File trainFile) throws NumberFormatException, IOException {
 		findNSeriesForPolygons();
-		System.out.println(numberSeriesForParcel);
 
 		// build train and test datasets (1pass over the data)
 		fReader = new FileReader(this.datasetFile);
@@ -150,8 +149,8 @@ public class AverageSeriesPerPolygon {
 	}
 
 	public static void main(String... args) throws NumberFormatException, IOException {
-		File csvWithPolygons = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-test-10.csv");
-		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-test-10-averaged.csv");
+		File csvWithPolygons = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-train-90.csv");
+		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated-train-90-averaged.csv");
 		AverageSeriesPerPolygon wrangler = new AverageSeriesPerPolygon(csvWithPolygons,new Euclidean());
 		wrangler.createData(out);
 	}
