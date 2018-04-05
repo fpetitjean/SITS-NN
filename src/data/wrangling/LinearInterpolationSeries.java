@@ -9,15 +9,9 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Random;
-
-import javax.management.RuntimeErrorException;
 
 /**
  * Wrote this file to create a train/test fold for the 2006 SudOuest Formosat-2 data
@@ -33,11 +27,9 @@ public class LinearInterpolationSeries {
 	protected long[]dates; 
 	
 	protected static final int N_BYTES = 100*1024*1024;
-	protected static final int ID_POLYGON_ATTRIBUTE = 1;
-	protected static final int CLASS_ATTRIBUTE = 0;
-	protected static final int INDEX_START_DATA_ATTRIBUTES = 2;
+	protected static final int INDEX_START_DATA_ATTRIBUTES = 4;
 	protected static final int LENGTH_TIME_SERIES = 46;
-	protected static final int N_BANDS = 1;
+	protected static final int N_BANDS = 3;
 	protected static final int N_DATA_ATTRIBUTES_PER_DATE = N_BANDS;//add number if indices as well
 	protected final boolean hasHeader = true;
 	
@@ -62,8 +54,8 @@ public class LinearInterpolationSeries {
 		//header
 		if(hasHeader){
 			line = reader.readLine();
-			out.write(line);
-			out.newLine();
+			writeHeader(out,line);
+			
 		}
 		
 		double[][]series=new double[LENGTH_TIME_SERIES][N_BANDS];
@@ -147,21 +139,39 @@ public class LinearInterpolationSeries {
 				}
 			}
 			
-			out.write(splitted[0]);
-			for (int i = 1; i < INDEX_START_DATA_ATTRIBUTES; i++) {
-				out.write(","+splitted[i]);
-			}
-			for (int t = 0; t < series.length; t++) {
-				for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
-					out.write(","+nf.format(series[t][a]));
-				}
-			}
-			out.newLine();
-			
+			double[][]seriesToPrint = getSeriesFromOriginal(series);
+			writeSeries(out, splitted, seriesToPrint);
 			
 		}
 		out.close();
 		
+	}
+	
+	protected void writeHeader(BufferedWriter out, String line) throws IOException {
+		out.write(line);
+		out.newLine();
+	}
+
+	/**
+	 * Used in child class in case you need the series transformed in some way
+	 * @param series
+	 * @return
+	 */
+	protected double[][] getSeriesFromOriginal(double[][] series) {
+		return series;
+	}
+
+	protected void writeSeries(BufferedWriter out,String[]splitted,double[][]series) throws IOException{
+		out.write(splitted[0]);
+		for (int i = 1; i < INDEX_START_DATA_ATTRIBUTES; i++) {
+			out.write(","+splitted[i]);
+		}
+		for (int t = 0; t < series.length; t++) {
+			for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
+				out.write(","+nf.format(series[t][a]));
+			}
+		}
+		out.newLine();
 	}
 	
 	public void setNDigits(int nDigits){
@@ -172,7 +182,7 @@ public class LinearInterpolationSeries {
 		GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
 		for (int i = 0; i < this.dates.length; i++) {
 			cal.setTime(dates[i]);
-			this.dates[i]=cal.getTimeInMillis()/1000;//seconds is enough
+			this.dates[i]=cal.getTimeInMillis();//seconds is enough
 		}
 	}
 	
