@@ -190,8 +190,8 @@ public class LinearInterpolationSeries {
 
 	
 	public static void main(String...args) throws NumberFormatException, IOException, ParseException{
-		File csvIn= new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots.csv");
-		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-NDVI-with-plots-interpolated.csv");
+		File csvIn = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots.csv");
+		File out = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots-interpolated-original-sampling.csv");
 		
 		File folderWithImagesForDates = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/2006-3B");
 		File []files = folderWithImagesForDates.listFiles(f->f.getName().endsWith("tif"));
