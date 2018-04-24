@@ -108,15 +108,17 @@ public class LinearInterpolationSeriesRegular extends LinearInterpolationSeries 
 		if ((lastTimestamp - firstTimestamp) % samplingFrequency != 0) {
 			lengthSeriesOutput++;
 		}
-		System.out.println(firstTimestamp);
+		System.out.println("creating series with "+lengthSeriesOutput+" timestamps");
 
 	}
 
 	public static void main(String... args)
 			throws NumberFormatException, IOException, ParseException {
+		int samplingFrequency = 5;
+		
 		File csvIn = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots.csv");
 		File out = new File(
-				"/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots-interpolated-weekly.csv");
+				"/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots-interpolated-"+samplingFrequency+"-days.csv");
 
 		File folderWithImagesForDates = new File(
 				"/home/petitjean/Dropbox/Data/SITS/Sudouest/2006-3B");
@@ -132,7 +134,7 @@ public class LinearInterpolationSeriesRegular extends LinearInterpolationSeries 
 		}
 
 		LinearInterpolationSeriesRegular wrangler = new LinearInterpolationSeriesRegular(csvIn,
-				dates,5);
+				dates,samplingFrequency);
 		wrangler.createInterpolatedDataset(out);
 	}
 
