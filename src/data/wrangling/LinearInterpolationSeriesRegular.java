@@ -87,6 +87,7 @@ public class LinearInterpolationSeriesRegular extends LinearInterpolationSeries 
 					double unitSlope = (nextElement[a] - previousElement[a])
 							/ (dateNext - datePrevious);
 					outputSeries[t][a] = previousElement[a] + unitSlope * (timestampT - datePrevious);
+					outputSeries[t][a] = Math.round(outputSeries[t][a]*10.0)/10.0;//rounding to 1 decimal place
 				}
 			}
 
@@ -116,9 +117,10 @@ public class LinearInterpolationSeriesRegular extends LinearInterpolationSeries 
 			throws NumberFormatException, IOException, ParseException {
 		int samplingFrequency = 5;
 		
-		File csvIn = new File("/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots.csv");
-		File out = new File(
-				"/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-with-plots-interpolated-"+samplingFrequency+"-days.csv");
+		String prefix = "/home/petitjean/Dropbox/Data/SITS/Sudouest/SITS-2006-RPG-no-label";
+		
+		File csvIn = new File(prefix+".csv");
+		File out = new File(prefix+"-interpolated-"+samplingFrequency+"-days.csv");
 
 		File folderWithImagesForDates = new File(
 				"/home/petitjean/Dropbox/Data/SITS/Sudouest/2006-3B");

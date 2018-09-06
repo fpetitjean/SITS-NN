@@ -23,11 +23,10 @@ public class LinearInterpolationSeries {
 	protected File datasetFile;
 	protected BufferedReader reader;
 	protected FileReader fReader;
-	protected NumberFormat nf;
 	protected long[]dates; 
 	
-	protected static final int N_BYTES = 100*1024*1024;
-	protected static final int INDEX_START_DATA_ATTRIBUTES = 4;
+	protected static final int N_BYTES = 10*1024*1024;
+	protected static final int INDEX_START_DATA_ATTRIBUTES = 2;
 	protected static final int LENGTH_TIME_SERIES = 46;
 	protected static final int N_BANDS = 3;
 	protected static final int N_DATA_ATTRIBUTES_PER_DATE = N_BANDS;//add number if indices as well
@@ -36,8 +35,6 @@ public class LinearInterpolationSeries {
 	
 	public LinearInterpolationSeries(File datasetFile) {
 		this.datasetFile = datasetFile;
-		this.nf = NumberFormat.getInstance();
-		this.nf.setMaximumFractionDigits(4);
 		this.dates = new long[LENGTH_TIME_SERIES];
 		for (int i = 0; i < dates.length; i++) {
 			this.dates[i]=i;
@@ -128,6 +125,7 @@ public class LinearInterpolationSeries {
 					for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
 						double unitSlope = (nextElement[a]-previousElement[a])/(dateNext-datePrevious);
 						series[t1][a]=previousElement[a]+unitSlope*(dateT1-datePrevious);
+						series[t1][a] = Math.round(series[t1][a]*10.0)/10.0;//rounding to 1 decimal place
 					}
 					missing[t1]=false;
 				}
@@ -168,14 +166,11 @@ public class LinearInterpolationSeries {
 		}
 		for (int t = 0; t < series.length; t++) {
 			for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
-				out.write(","+nf.format(series[t][a]));
+//				out.write(","+nf.format(series[t][a]));
+				out.write(","+series[t][a]);
 			}
 		}
 		out.newLine();
-	}
-	
-	public void setNDigits(int nDigits){
-		this.nf.setMaximumFractionDigits(nDigits);
 	}
 	
 	public void setDates(Date[]dates){
