@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -125,7 +124,6 @@ public class LinearInterpolationSeries {
 					for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
 						double unitSlope = (nextElement[a]-previousElement[a])/(dateNext-datePrevious);
 						series[t1][a]=previousElement[a]+unitSlope*(dateT1-datePrevious);
-						series[t1][a] = Math.round(series[t1][a]*10.0)/10.0;//rounding to 1 decimal place
 					}
 					missing[t1]=false;
 				}
@@ -167,7 +165,11 @@ public class LinearInterpolationSeries {
 		for (int t = 0; t < series.length; t++) {
 			for (int a = 0; a < N_DATA_ATTRIBUTES_PER_DATE; a++) {
 //				out.write(","+nf.format(series[t][a]));
-				out.write(","+series[t][a]);
+				if(Math.round(series[t][a]*10.0)%10==0){ //saving file space with xx.0 things
+					out.write(","+((int)series[t][a]));
+				}else{
+					out.write(","+(Math.round(series[t][a]*10.0)/10.0));
+				}
 			}
 		}
 		out.newLine();

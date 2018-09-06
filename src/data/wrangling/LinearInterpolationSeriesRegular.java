@@ -87,7 +87,6 @@ public class LinearInterpolationSeriesRegular extends LinearInterpolationSeries 
 					double unitSlope = (nextElement[a] - previousElement[a])
 							/ (dateNext - datePrevious);
 					outputSeries[t][a] = previousElement[a] + unitSlope * (timestampT - datePrevious);
-					outputSeries[t][a] = Math.round(outputSeries[t][a]*10.0)/10.0;//rounding to 1 decimal place
 				}
 			}
 
